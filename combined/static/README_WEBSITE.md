@@ -12,7 +12,6 @@ A beautiful, modern web interface for the Unified Vehicle Data API that makes it
 
 ### 🔍 Advanced Search Interface
 - **Simple VRM Search**: Enter any UK vehicle registration mark to get comprehensive data
-- **Custom Credentials**: Option to use your own E3Technical credentials
 - **Auto-formatting**: VRM input automatically converts to uppercase
 - **Force Refresh**: Always gets the latest data for accurate results
 
@@ -47,9 +46,8 @@ The website displays data from two primary sources:
 
 1. **Open the Website**: Navigate to `http://localhost:8000` in your web browser
 2. **Enter VRM**: Type in a vehicle registration mark (e.g., "NG04UBV")
-3. **Optional Credentials**: Add custom E3Technical login if you have one
-4. **Search**: Click "Search Vehicle" to get comprehensive data
-5. **Explore Results**: View organized data from both sources with field counts and performance metrics
+3. **Search**: Click "Search Vehicle" to get comprehensive data
+4. **Explore Results**: View organized data from both sources with field counts and performance metrics
 
 ## Technical Details
 
@@ -73,7 +71,7 @@ The website displays data from two primary sources:
 
 The website seamlessly integrates with the Unified Vehicle Data API:
 - **GET /**: Serves the main website interface
-- **GET /{vrm}**: Fetches vehicle data with optional credentials
+- **GET /{vrm}**: Fetches vehicle data using default credentials
 - **Error Handling**: Displays meaningful error messages for failed requests
 - **Real-time Data**: Always shows the most current vehicle information available
 

@@ -84,8 +84,8 @@
         }
 
         .form-group {
-            flex: 1;
-            min-width: 200px;
+            flex: 2;
+            min-width: 300px;
         }
 
         .form-label {
@@ -426,14 +426,6 @@
                     <label class="form-label" for="vrm">Vehicle Registration Mark (VRM)</label>
                     <input type="text" id="vrm" name="vrm" class="form-input" placeholder="e.g., NG04UBV" required>
                 </div>
-                <div class="form-group">
-                    <label class="form-label" for="username">E3Technical Username (Optional)</label>
-                    <input type="text" id="username" name="username" class="form-input" placeholder="Leave blank for default">
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="password">E3Technical Password (Optional)</label>
-                    <input type="password" id="password" name="password" class="form-input" placeholder="Leave blank for default">
-                </div>
                 <button type="submit" class="search-btn" id="searchBtn">
                     <i class="fas fa-search"></i>
                     Search Vehicle
@@ -459,8 +451,6 @@
             e.preventDefault();
             
             const vrm = document.getElementById('vrm').value.trim();
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
             
             if (!vrm) {
                 alert('Please enter a VRM');
@@ -474,10 +464,7 @@
             
             try {
                 // Build API URL
-                let apiUrl = `/${vrm}?force_refresh=true`;
-                if (username && password) {
-                    apiUrl += `&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
-                }
+                const apiUrl = `/${vrm}?force_refresh=true`;
                 
                 const response = await fetch(apiUrl);
                 
