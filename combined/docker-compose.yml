@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  combined-vehicle-api:
+    build: .
+    container_name: combined-vehicle-api
+    ports:
+      - "8000:8000"
+    environment:
+      - CACHE_TTL=3600
+      - CACHE_MAXSIZE=5000
+      - LOG_LEVEL=INFO
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    volumes:
+      # Optional: mount logs directory
+      - ./logs:/app/logs
+    networks:
+      - vehicle-api-network
+
+networks:
+  vehicle-api-network:
+    driver: bridge 
