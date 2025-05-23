@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Data Explorer | Comprehensive Vehicle Information</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2563eb;
+            --primary-light: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #64748b;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --background: #f8fafc;
+            --surface: #ffffff;
+            --surface-dark: #f1f5f9;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --border: #e2e8f0;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --border-radius: 8px;
+            --transition: all 0.2s ease-in-out;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .search-section {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .search-form {
+            display: flex;
+            gap: 1rem;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+            background: var(--surface);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .search-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            min-height: 50px;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .search-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .results-container {
+            display: none;
+        }
+
+        .vehicle-header {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .vehicle-info h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .vehicle-meta {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-badge {
+            background: var(--surface-dark);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .sources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .source-card {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border: 1px solid var(--border);
+        }
+
+        .source-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .source-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .source-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .source-title h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .source-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: white;
+        }
+
+        .e3technical .source-icon {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .bookmygarage .source-icon {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+        }
+
+        .field-count {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .data-grid {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .data-field {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            padding: 0.75rem;
+            background: var(--surface-dark);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            border-left: 4px solid transparent;
+        }
+
+        .data-field:hover {
+            background: #e2e8f0;
+            border-left-color: var(--primary-color);
+        }
+
+        .field-key {
+            font-weight: 600;
+            color: var(--text-primary);
+            word-wrap: break-word;
+        }
+
+        .field-value {
+            color: var(--text-secondary);
+            font-family: 'Monaco', 'Menlo', monospace;
+            word-wrap: break-word;
+        }
+
+        .error-message {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            border: 1px solid #fca5a5;
+            color: #991b1b;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stats-bar {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .stat-item {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+
+        .no-data i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .search-form {
+                flex-direction: column;
+            }
+
+            .form-group {
+                min-width: auto;
+            }
+
+            .vehicle-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .sources-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .data-field {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+
+            .stats-bar {
+                flex-direction: column;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-car"></i> Vehicle Data Explorer</h1>
+            <p>Comprehensive vehicle information from multiple trusted sources</p>
+        </div>
+
+        <div class="search-section">
+            <form class="search-form" id="searchForm">
+                <div class="form-group">
+                    <label class="form-label" for="vrm">Vehicle Registration Mark (VRM)</label>
+                    <input type="text" id="vrm" name="vrm" class="form-input" placeholder="e.g., NG04UBV" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="username">E3Technical Username (Optional)</label>
+                    <input type="text" id="username" name="username" class="form-input" placeholder="Leave blank for default">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="password">E3Technical Password (Optional)</label>
+                    <input type="password" id="password" name="password" class="form-input" placeholder="Leave blank for default">
+                </div>
+                <button type="submit" class="search-btn" id="searchBtn">
+                    <i class="fas fa-search"></i>
+                    Search Vehicle
+                </button>
+            </form>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Searching comprehensive vehicle data...</p>
+        </div>
+
+        <div class="results-container" id="results"></div>
+    </div>
+
+    <script>
+        const searchForm = document.getElementById('searchForm');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        const searchBtn = document.getElementById('searchBtn');
+
+        searchForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const vrm = document.getElementById('vrm').value.trim();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            
+            if (!vrm) {
+                alert('Please enter a VRM');
+                return;
+            }
+
+            // Show loading state
+            loading.style.display = 'block';
+            results.style.display = 'none';
+            searchBtn.disabled = true;
+            
+            try {
+                // Build API URL
+                let apiUrl = `/${vrm}?force_refresh=true`;
+                if (username && password) {
+                    apiUrl += `&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
+                }
+                
+                const response = await fetch(apiUrl);
+                
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                }
+                
+                const data = await response.text();
+                const vehicleData = JSON.parse(data);
+                
+                displayResults(vehicleData);
+                
+            } catch (error) {
+                console.error('Search error:', error);
+                results.innerHTML = `
+                    <div class="error-message fade-in">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Error: ${error.message}</span>
+                    </div>
+                `;
+                results.style.display = 'block';
+            } finally {
+                loading.style.display = 'none';
+                searchBtn.disabled = false;
+            }
+        });
+
+        function displayResults(vehicleData) {
+            const { vrm, data, sources, total_fields, scrape_time_ms, cached } = vehicleData;
+            
+            let html = `
+                <div class="fade-in">
+                    <div class="vehicle-header">
+                        <div class="vehicle-info">
+                            <h2>${vrm}</h2>
+                            <div class="vehicle-meta">
+                                <span class="meta-badge">
+                                    <i class="fas fa-database"></i> ${total_fields} Total Fields
+                                </span>
+                                <span class="meta-badge">
+                                    <i class="fas fa-clock"></i> ${scrape_time_ms}ms
+                                </span>
+                                ${cached ? '<span class="meta-badge"><i class="fas fa-memory"></i> Cached</span>' : ''}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stats-bar">
+                        <div class="stat-item">
+                            <span class="stat-value">${sources.length}</span>
+                            <span class="stat-label">Data Sources</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">${total_fields}</span>
+                            <span class="stat-label">Total Fields</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">${scrape_time_ms}ms</span>
+                            <span class="stat-label">Query Time</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">${cached ? 'YES' : 'NO'}</span>
+                            <span class="stat-label">Cached</span>
+                        </div>
+                    </div>
+
+                    <div class="sources-grid">
+            `;
+
+            // Display data from each source
+            Object.entries(data).forEach(([source, sourceData]) => {
+                const sourceTitle = source === 'e3technical' ? 'E3 Technical' : 'BookMyGarage';
+                const sourceIcon = source === 'e3technical' ? 'fas fa-cog' : 'fas fa-wrench';
+                const fieldCount = Object.keys(sourceData).length;
+                
+                html += `
+                    <div class="source-card ${source}">
+                        <div class="source-header">
+                            <div class="source-title">
+                                <div class="source-icon">
+                                    <i class="${sourceIcon}"></i>
+                                </div>
+                                <h3>${sourceTitle}</h3>
+                            </div>
+                            <div class="field-count">${fieldCount} fields</div>
+                        </div>
+                        <div class="data-grid">
+                `;
+
+                // Display all fields for this source
+                Object.entries(sourceData).forEach(([key, value]) => {
+                    html += `
+                        <div class="data-field">
+                            <div class="field-key">${key}</div>
+                            <div class="field-value">${value}</div>
+                        </div>
+                    `;
+                });
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            if (Object.keys(data).length === 0) {
+                html += `
+                    <div class="no-data">
+                        <i class="fas fa-search"></i>
+                        <h3>No Data Found</h3>
+                        <p>No vehicle data could be retrieved for ${vrm}</p>
+                    </div>
+                `;
+            }
+
+            html += `
+                    </div>
+                </div>
+            `;
+
+            results.innerHTML = html;
+            results.style.display = 'block';
+        }
+
+        // Auto-focus on VRM input
+        document.getElementById('vrm').focus();
+
+        // Convert VRM to uppercase as user types
+        document.getElementById('vrm').addEventListener('input', (e) => {
+            e.target.value = e.target.value.toUpperCase();
+        });
+    </script>
+</body>
+</html> 

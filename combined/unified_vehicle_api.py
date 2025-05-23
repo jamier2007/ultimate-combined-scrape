@@ -17,8 +17,10 @@ import mechanicalsoup
 from bs4 import BeautifulSoup
 from fastapi import FastAPI, HTTPException, Path, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import Response, PlainTextResponse, HTMLResponse
+from fastapi.responses import Response, PlainTextResponse, HTMLResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from cachetools import TTLCache
+import os
 
 # ==================== Configuration ====================
 logging.basicConfig(level=logging.INFO)
@@ -67,6 +69,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Mount static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # ==================== Helper Functions ====================
 def clean_vrm(vrm: str) -> str:
@@ -345,6 +350,16 @@ async def get_comprehensive_vehicle_data(vrm: str, username: str = None, passwor
 # ==================== API Routes ====================
 @app.get("/")
 async def root():
+    """Serve the web interface"""
+    return FileResponse("static/index.html")
+
+@app.get("/favicon.ico")
+async def favicon():
+    """Serve favicon"""
+    return FileResponse("static/favicon.ico")
+
+@app.get("/api")
+async def api_info():
     """API information"""
     response_data = {
         "name": "Unified Vehicle Data API",
